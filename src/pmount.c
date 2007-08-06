@@ -29,14 +29,14 @@
 #include "main.h"
 
 int
-pmount (char *fstype, char *mntdir, int mntflags, void *data)
+pmount(char *fstype, char *mntdir, int mntflags, void *data)
 {
 #ifdef USE_MTAB
   char *options, *line;
 #endif
   int ret;
 
-  ret = __pmount (fstype, mntdir, mntflags, data);
+  ret = __pmount(fstype, mntdir, mntflags, data);
   if (ret == -1)
     return -1;
 
@@ -44,36 +44,38 @@ pmount (char *fstype, char *mntdir, int mntflags, void *data)
    /* We were able to mount, but maybe we are not root. On systems where
       non-root users can mount (e.g. GNU) we only keep track of filesystems
       mounted by root. */
-  if (geteuid () != 0)
-    {
-      errno = 0;
-      return 0;
-    }
+  if (geteuid() != 0)
+  {
+    errno = 0;
+    return 0;
+  }
 
   /* Generate an options substring */
   if ((mntflags & PMOUNT_READONLY) == 0)
-    options = strdup ("rw");
+    options = strdup("rw");
   else
-    options = strdup ("ro");
+    options = strdup("ro");
+
   if ((mntflags & PMOUNT_NOSUID) == 0)
-    asprintf (&options, "%s,suid", options);
+    asprintf(&options, "%s,suid", options);
   else
-    asprintf (&options, "%s,nosuid", options);
+    asprintf(&options, "%s,nosuid", options);
+
   if (ret == __PMOUNT_LOOPBACK)
-    asprintf (&options, "%s,loop", options);
+    asprintf(&options, "%s,loop", options);
 
   /* For non-device filesystems we list "null" as device.
      FIXME: This check only addresses virtual filesystems like procfs_*,
      but network filesystems will initialise 'data' when implemented. */
   if (data == NULL)
-    data = (void *) "null";
+    data = (void *)"null";
 
-  asprintf (&line, "%s %s %s %s %d %d\n",
-           (char *) data, mntdir, fstype, options, 0, 0);
-  free (options);
+  asprintf(&line, "%s %s %s %s %d %d\n",
+          (char *)data, mntdir, fstype, options, 0, 0);
+  free(options);
 
-  ret = __mtab_add (line);
-  free (line);
+  ret = __mtab_add(line);
+  free(line);
   if (ret == -1)
     return -1;
 #endif
@@ -83,37 +85,37 @@ pmount (char *fstype, char *mntdir, int mntflags, void *data)
 }
 
 int
-pumount (char *mntdir, int mntflags)
+pumount(char *mntdir, int mntflags)
 {
 #ifdef USE_MTAB
   char *line, *file, *opts;
-  line = __mtab_getline (mntdir);
-  opts = __mtab_getword (line, 3);
+  line = __mtab_getline(mntdir);
+  opts = __mtab_getword(line, 3);
 
 #ifdef verbose
-  fprintf (stderr, "pumount: I'm going to umount \"%s\"\n", line);
+  fprintf(stderr, "pumount: I'm going to umount \"%s\"\n", line);
 #endif
-  if (strstr (opts, ",loop") == NULL)
+  if (strstr(opts, ",loop") == NULL)
     file = NULL;
   else
-    file = __mtab_getword (line, 0);
+    file = __mtab_getword(line, 0);
 
 #ifdef verbose
   if (file == NULL)
-    fprintf (stderr, "pumount: There was no loop device.\n");
+    fprintf(stderr, "pumount: There was no loop device.\n");
   else
-    fprintf (stderr, "pumount: Seems like file %s was looped.\n", file);
+    fprintf(stderr, "pumount: Seems like file %s was looped.\n", file);
 #endif
 
 #else
 #define file NULL
 #endif
-  if (__pumount (mntdir, mntflags, file) != 0)
+  if (__pumount(mntdir, mntflags, file) != 0)
     return -1;
 
 #ifdef USE_MTAB
-  if (geteuid () == 0)
-    if (__mtab_del (mntdir) == -1)
+  if (geteuid() == 0)
+    if (__mtab_del(mntdir) == -1)
       return -1;
 #endif
 

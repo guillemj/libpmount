@@ -35,16 +35,16 @@
 
 /* Add a line to mtab. Returns 0 on success. */
 int
-__mtab_add (char *line)
+__mtab_add(char *line)
 {
   FILE *mtab;
 
-  mtab = fopen (_PATH_MOUNTED, "a");
+  mtab = fopen(_PATH_MOUNTED, "a");
   if (mtab == NULL)
-    {
-      perror ("fopen");
-      return PMOUNT_NOTME;
-    }
+  {
+    perror("fopen");
+    return PMOUNT_NOTME;
+  }
 
   fprintf (mtab, line);
 

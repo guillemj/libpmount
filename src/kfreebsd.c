@@ -61,39 +61,40 @@
 #include <isofs/cd9660/cd9660_mount.h>
 
 static int
-__get_ssector (const char *dev)
+__iso_get_ssector(const char *dev)
 {
   struct ioc_toc_header h;
   struct ioc_read_toc_entry t;
   struct cd_toc_entry toc_buffer[100];
   int fd, ntocentries, i;
 
-  if ((fd = open (dev, O_RDONLY)) == -1)
+  fd = open(dev, O_RDONLY);
+  if (fd == -1)
     return -1;
-  if (ioctl (fd, CDIOREADTOCHEADER, &h) == -1)
-    {
-      close (fd);
-      return -1;
-    }
+  if (ioctl(fd, CDIOREADTOCHEADER, &h) == -1)
+  {
+    close(fd);
+    return -1;
+  }
 
   ntocentries = h.ending_track - h.starting_track + 1;
   if (ntocentries > 100)
-    {
-      /* unreasonable, only 100 allowed */
-      close (fd);
-      return -1;
-    }
+  {
+    /* unreasonable, only 100 allowed */
+    close (fd);
+    return -1;
+  }
   t.address_format = CD_LBA_FORMAT;
   t.starting_track = 0;
   t.data_len = ntocentries * sizeof (struct cd_toc_entry);
   t.data = toc_buffer;
 
-  if (ioctl (fd, CDIOREADTOCENTRYS, (char *) &t) == -1)
-    {
-      close (fd);
-      return -1;
-    }
-  close (fd);
+  if (ioctl(fd, CDIOREADTOCENTRYS, (char *) &t) == -1)
+  {
+    close(fd);
+    return -1;
+  }
+  close(fd);
 
   for (i = ntocentries - 1; i >= 0; i--)
     if ((toc_buffer[i].control & 4) != 0)
@@ -102,16 +103,15 @@ __get_ssector (const char *dev)
   if (i < 0)
     return -1;
 
-  return ntohl (toc_buffer[i].addr.lba);
+  return ntohl(toc_buffer[i].addr.lba);
 }
 
 int
-__pmount (char *fstype, char *mntdir, int mntflags, void *data)
+__pmount(char *fstype, char *mntdir, int mntflags, void *data)
 {
   char *my_fstype = fstype;
   void *my_data = NULL;
   int my_mntflags = 0;
-
   struct iso_args args;
 
   if ((mntflags & PMOUNT_REMOUNT) != 0)
@@ -127,67 +127,72 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
   if ((mntflags & PMOUNT_SYNCHRONOUS) != 0)
     my_mntflags |= MNT_SYNCHRONOUS;
 
-  if (!strcmp (fstype, "ext2fs"))
-    {
-      my_data = data;
-    }
-  else if (!strcmp (fstype, "procfs_linux"))
-    {
-      my_fstype = "linprocfs";
-      my_data = data;
-    }
-  else if (!strcmp (fstype, "iso9660"))
-    {
-      my_fstype = "cd9660";
+  if (!strcmp(fstype, "ext2fs"))
+  {
+    my_data = data;
+  }
+  else if (!strcmp(fstype, "procfs_linux"))
+  {
+    my_fstype = "linprocfs";
+    my_data = data;
+  }
+  else if (!strcmp(fstype, "iso9660"))
+  {
+    my_fstype = "cd9660";
 
-      memset (&args, 0, sizeof args);
-      args.ssector = -1;
-      args.cs_disk = NULL;
-      args.cs_local = NULL;
+    memset(&args, 0, sizeof args);
+    args.ssector = -1;
+    args.cs_disk = NULL;
+    args.cs_local = NULL;
 
+    /*
+     * ISO 9660 file systems are not writeable.
+     */
+    mntflags |= MNT_RDONLY;
+    args.export.ex_flags = MNT_EXRDONLY;
+    args.fspec = (char *) data;
+    args.export.ex_root = -2;
+    args.flags = 0;
+
+    if (args.ssector == -1)
+    {
       /*
-       * ISO 9660 file systems are not writeable.
+       * The start of the session has not been specified on
+       * the command line.  If we can successfully read the
+       * TOC of a CD-ROM, use the last data track we find.
+       * Otherwise, just use 0, in order to mount the very
+       * first session.  This is compatible with the
+       * historic behaviour of mount_cd9660(8).  If the user
+       * has specified -s <ssector> above, we don't get here
+       * and leave the user's will.
        */
-      mntflags |= MNT_RDONLY;
-      args.export.ex_flags = MNT_EXRDONLY;
-      args.fspec = (char *) data;
-      args.export.ex_root = -2;
-      args.flags = 0;
-
+      args.ssector = __iso_get_ssector((char *)data);
       if (args.ssector == -1)
-	{
-	  /*
-	   * The start of the session has not been specified on
-	   * the command line.  If we can successfully read the
-	   * TOC of a CD-ROM, use the last data track we find.
-	   * Otherwise, just use 0, in order to mount the very
-	   * first session.  This is compatible with the
-	   * historic behaviour of mount_cd9660(8).  If the user
-	   * has specified -s <ssector> above, we don't get here
-	   * and leave the user's will.
-	   */
-	  if ((args.ssector = __get_ssector ((char *) data)) == -1)
-	    /* could not determine starting sector,
-	       using very first session */
-	    args.ssector = 0;
-	}
-      my_data = (void *) &args;
+      {
+        /* could not determine starting sector,
+           using very first session */
+        args.ssector = 0;
+      }
     }
+    my_data = (void *)&args;
+  }
   else if (!strcmp (fstype, "nfs"))
-    {
-      my_data = NULL;		/* FIXME */
-    }
+  {
+    my_data = NULL;		/* FIXME */
+  }
   else
     return PMOUNT_UNKNOWNFS;
 
-  return syscall (SYS_mount, my_fstype, mntdir, mntflags, my_data);
+  return syscall(SYS_mount, my_fstype, mntdir, mntflags, my_data);
 }
 
 int
 __pumount (char *mntdir, int mntflags)
 {
   int my_mntflags = 0;
+
   if ((mntflags & PUMOUNT_FORCE) != 0)
     my_mntflags |= MNT_FORCE;
-  return syscall (SYS_unmount, mntdir, my_mntflags);
+
+  return syscall(SYS_unmount, mntdir, my_mntflags);
 }

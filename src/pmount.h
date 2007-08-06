@@ -35,7 +35,8 @@
 /* mapping of umount flags */
 #define PUMOUNT_FORCE		1
 
-int pmount (char *fstype, char *mntdir, int mntflags, void *data);
-int pumount (char *mntdir, int mntflags);
+int pmount(char *fstype, char *mntdir, int mntflags, void *data);
+int pumount(char *mntdir, int mntflags);
 
 #endif
+

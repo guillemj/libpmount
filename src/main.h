@@ -21,10 +21,11 @@
 
 #define __PMOUNT_LOOPBACK 1
 
-int __pmount (char *fstype, char *mntdir, int mntflags, void *data);
-int __pumount (char *mntdir, int mntflags, char *looped_file);
+int __pmount(char *fstype, char *mntdir, int mntflags, void *data);
+int __pumount(char *mntdir, int mntflags, char *looped_file);
 
-int __mtab_add (char *line);
-int __mtab_del (char *mntdir);
-char *__mtab_getline (char *mntdir);
-char *__mtab_getword (char *line, int i);
+int __mtab_add(char *line);
+int __mtab_del(char *mntdir);
+char *__mtab_getline(char *mntdir);
+char *__mtab_getword(char *line, int i);
+
