@@ -4,7 +4,7 @@ libpmount (0.0.9) unstable; urgency=low
     - Rename libpmount-dev.files to libmount-dev.install
     - Rename libpmount0.0.files to libpmount0.0.install.
   * Remove commented out dh_installdebconf, dh_installinit and dh_installinfo.
-  * Do not ignore make errors from on clean target.ç
+  * Do not ignore make errors from on clean target.
   * Use dpkg-parsechangelog instead of manually parsing the changelog to get
     the current upstream version.
   * Use binary:Version instead of deprecated Source-Version substvar.
