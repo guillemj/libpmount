@@ -1,0 +1,55 @@
+#!/bin/bash -ex
+
+CFLAGS="$CFLAGS -Werror -Isrc -D_REENTRANT"
+SRCS="pmount kerndep mtab"
+
+target ()
+{
+case "$1" in
+clean)
+	rm -rf tmp out
+	rm -f src/*~ stamp-*
+;;
+build|"") if test -e stamp-build ; then return ; fi
+	mkdir -p tmp out
+	for i in $SRCS ; do
+	  gcc $CFLAGS -fPIC -c src/$i.c -o tmp/$i.o
+	done
+	gcc -Wl,-z,defs -Wl,-soname,libpmount.so.0.0 \
+		-shared tmp/*.o -o out/libpmount.so.0.0
+	for i in $SRCS ; do
+	  gcc $CFLAGS -c src/$i.c -o tmp/$i.o
+	done
+	ar cru out/libpmount.a tmp/*.o
+	touch stamp-build
+;;
+check)	target build
+	# check if we are root, and it's not fake
+	if [ $UID = 0 ] && test -z $FAKEROOTKEY ; then
+		for i in tests/*.sh ; do sh $i ; done
+	else
+		echo "Not running as root, skipping checks."
+	fi
+;;
+install) target build
+	mkdir -p $DESTDIR/usr/include/ $DESTDIR/{usr/,}lib
+	install -m644 src/pmount.h $DESTDIR/usr/include/
+	install -s -m755 out/libpmount.so.0.0 $DESTDIR/lib/
+	strip --strip-unneeded $DESTDIR/lib/libpmount.so.0.0
+	install -m755 out/libpmount.a $DESTDIR/usr/lib/
+	ln -s /lib/libpmount.so.0 $DESTDIR/usr/lib/libpmount.so
+	ln -s libpmount.so.0.0 $DESTDIR/lib/libpmount.so.0
+;;
+esac
+}
+
+for i in "$@" ; do
+  case "$i" in
+  clean|install|build|check|"")
+	target $i ;;
+  *)
+	echo "Unknown target: $i"
+	exit 1
+  ;;
+  esac
+done

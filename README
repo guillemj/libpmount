@@ -1,0 +1,6 @@
+
+List of supported filesystems:
+
+ext2fs
+iso9660
+procfs_linux
