@@ -1,0 +1,7 @@
+LIBPMOUNT_0.0 {
+  global:
+    pmount;
+    pumount;
+  local:
+    *;
+};

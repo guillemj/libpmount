@@ -3,7 +3,7 @@
 #
 
 CFLAGS = -Wall -g
-MK_CFLAGS = -D_REENTRANT
+MK_CFLAGS = -D_REENTRANT -DUSE_LOOP
 
 PACKAGE = libpmount
 SOVERSION = 0.0
@@ -23,17 +23,21 @@ ST_OBJS = $(SRCS:.c=.o)
 build: $(SONAME) $(LIBNAME)
 
 $(LIBNAME): $(ST_OBJS)
-	$(AR) cru $@ $<
+	$(AR) cru $@ $^
 
 $(SONAME): $(SH_OBJS)
-	$(CC) -Wl,-z,defs -Wl,-soname,$(SONAME) -shared -o $@ $<
+	$(CC) -shared \
+	  -Wl,-z,defs \
+	  -Wl,-soname -Wl,$(SONAME) \
+	  -Wl,--version-script=Versions \
+	  -o $@ $^
 
 check: build
 	# check if we are root, and it's not fake
 	if test `id -u` = 0 && test -z "$(FAKEROOTKEY)"; then \
-	  for i in tests/*.sh; do sh $i; done \
+	  $(MAKE) -C tests; \
 	else \
-	  echo "Not running as root, skipping checks." \
+	  echo "Not running as root, skipping checks."; \
 	fi
 
 install: build
@@ -52,4 +56,5 @@ clean:
 	$(RM) $(SH_OBJS)
 	$(RM) $(SONAME)
 	$(RM) $(LIBNAME)
+	$(MAKE) -C tests $@
 

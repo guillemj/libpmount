@@ -32,9 +32,140 @@
 
 #include "main.h"
 
-char *__getloop (char *file);
-int __clrloop (char *file);
-char *__findloop (char *file);
+/* If 'file' is NULL, find a free device. Otherwise find a device that is
+   already set for 'file'. In either case, on failure return NULL. */
+static char *
+__findloop (char *file)
+{
+  char *loop;
+  int i, fd, ret;
+  struct loop_info loopinfo;
+  struct stat st;
+
+  for (i = 0; i <= 15; i++)
+    {
+      if (i <= 7)
+        asprintf (&loop, "/dev/loop%d", i);
+      else
+        asprintf (&loop, "/dev/loop/%d", i - 8);
+
+      /* Make sure this is a loop device */
+      if (stat (loop, &st) != 0)
+        break;
+      if (S_ISBLK (st.st_mode) == 0)
+        break;
+      if (major (st.st_rdev) != 7)
+        break;
+
+      fd = open (loop, O_RDONLY);
+      if (fd < 0)
+        break;
+
+      ret = ioctl (fd, LOOP_GET_STATUS, &loopinfo);
+      close (fd);
+
+      if (ret == 0)
+        {
+#ifdef verbose
+          fprintf (stderr, "__findloop: Device %s is in use\n", loop);
+#endif
+          if (file != NULL)
+            {
+              if (!strcmp (file, loopinfo.lo_name))
+                {
+#ifdef verbose
+                  fprintf (stderr, "__findloop: We were looking for file %s"
+                           ", which seems to match device %s\n", file, loop);
+#endif
+                  return loop;
+                }
+            }
+        }
+      else if ((file == NULL) && (errno == ENXIO))
+        {
+#ifdef verbose
+          fprintf (stderr, "__findloop: We were looking for a free device, "
+                   "and %s is.\n", loop);
+#endif
+          return loop;
+        }
+    }
+  free (loop);
+
+  /* We failed. Let's return NULL. */
+  return NULL;
+}
+
+/* Finds a free loop device, and sets it for 'file'. If 'file' is already
+   set as loop device, __setloop will re-use that device.
+   Returns the loop device name is succesful, NULL otherwise. */
+static char *
+__getloop (char *file)
+{
+  char *device;
+  int fd_file, fd_device, ret;
+  struct loop_info loopinfo;
+
+  device = __findloop (file);
+  if (device != NULL)
+    return device;
+
+  device = __findloop (NULL);
+  if (device == NULL)
+    return NULL;
+
+#ifdef verbose
+  fprintf (stderr, "__getloop: Setting up %s in %s\n", file, device);
+#endif
+
+  fd_file = open (file, O_RDONLY | O_WRONLY);
+  fd_device = open (device, O_RDONLY);
+  ret = ioctl (fd_device, LOOP_SET_FD, fd_file);
+  close (fd_file);
+  if (ret == -1)
+   {
+     close (fd_device);
+     return NULL;
+   }
+#ifdef verbose
+  fprintf (stderr, "__getloop: LOOP_SET_FD succeeded (%d).\n", ret);
+#endif
+
+  memset (&loopinfo, 0, sizeof (loopinfo));
+  if (strlen (file) <= LO_NAME_SIZE)
+    strncpy (loopinfo.lo_name, file, LO_NAME_SIZE);
+  else
+    return NULL; /* Fuck it. Filename is too long! */
+  ret = ioctl (fd_device, LOOP_SET_STATUS, &loopinfo);
+  close (fd_device);
+  if (ret == -1)
+    return NULL;
+#ifdef verbose
+  fprintf (stderr, "__getloop: LOOP_SET_STATUS succeeded (%d).\n", ret);
+#endif
+
+  return device;
+}
+
+/* Unsets the device found to be using 'file'. In case of failure, or if none
+   found, return -1. */
+static int
+__clrloop (char *file)
+{
+  char *device;
+  int fd, ret;
+
+  device = __findloop (file);
+  if (device == NULL)
+    return -1;
+
+  fd = open (device, O_RDONLY);
+  free (device);
+  ret = ioctl (fd, LOOP_CLR_FD, 0);
+  close (fd);
+
+  return ret;
+}
 
 int
 __pmount (char *fstype, char *mntdir, int mntflags, void *data)
@@ -138,137 +269,3 @@ __pumount (char *mntdir, int mntflags, char *looped_file)
   return 0;
 }
 
-/* If 'file' is NULL, find a free device. Otherwise find a device that is
-   already set for 'file'. In either case, on failure return NULL. */
-char *
-__findloop (char *file)
-{
-  char *loop;
-  int i, fd, ret;
-  struct loop_info loopinfo;
-  struct stat st;
-
-  for (i = 0; i <= 15; i++)
-    {
-      if (i <= 7)
-        asprintf (&loop, "/dev/loop%d", i);
-      else
-        asprintf (&loop, "/dev/loop/%d", i - 8);
-
-      /* Make sure this is a loop device */
-      if (stat (loop, &st) != 0)
-        break;
-      if (S_ISBLK (st.st_mode) == 0)
-        break;
-      if (major (st.st_rdev) != 7)
-        break;
-
-      fd = open (loop, O_RDONLY);
-      if (fd < 0)
-        break;
-
-      ret = ioctl (fd, LOOP_GET_STATUS, &loopinfo);
-      close (fd);
-
-      if (ret == 0)
-        {
-#ifdef verbose
-          fprintf (stderr, "__findloop: Device %s is in use\n", loop);
-#endif
-          if (file != NULL)
-            {
-              if (!strcmp (file, loopinfo.lo_name))
-                {
-#ifdef verbose
-                  fprintf (stderr, "__findloop: We were looking for file %s"
-                           ", which seems to match device %s\n", file, loop);
-#endif
-                  return loop;
-                }
-            }
-        }
-      else if ((file == NULL) && (errno == ENXIO))
-        {
-#ifdef verbose
-          fprintf (stderr, "__findloop: We were looking for a free device, "
-                   "and %s is.\n", loop);
-#endif
-          return loop;
-        }
-    }
-  free (loop);
-
-  /* We failed. Let's return NULL. */
-  return NULL;
-}
-
-/* Finds a free loop device, and sets it for 'file'. If 'file' is already
-   set as loop device, __setloop will re-use that device.
-   Returns the loop device name is succesful, NULL otherwise. */
-char *
-__getloop (char *file)
-{
-  char *device;
-  int fd_file, fd_device, ret;
-  struct loop_info loopinfo;
-
-  device = __findloop (file);
-  if (device != NULL)
-    return device;
-
-  device = __findloop (NULL);
-  if (device == NULL)
-    return NULL;
-
-#ifdef verbose
-  fprintf (stderr, "__getloop: Setting up %s in %s\n", file, device);
-#endif
-
-  fd_file = open (file, O_RDONLY | O_WRONLY);
-  fd_device = open (device, O_RDONLY);
-  ret = ioctl (fd_device, LOOP_SET_FD, fd_file);
-  close (fd_file);
-  if (ret == -1)
-   {
-     close (fd_device);
-     return NULL;
-   }
-#ifdef verbose
-  fprintf (stderr, "__getloop: LOOP_SET_FD succeeded (%d).\n", ret);
-#endif
-
-  memset (&loopinfo, 0, sizeof (loopinfo));
-  if (strlen (file) <= LO_NAME_SIZE)
-    strncpy (loopinfo.lo_name, file, LO_NAME_SIZE);
-  else
-    return NULL; /* Fuck it. Filename is too long! */
-  ret = ioctl (fd_device, LOOP_SET_STATUS, &loopinfo);
-  close (fd_device);
-  if (ret == -1)
-    return NULL;
-#ifdef verbose
-  fprintf (stderr, "__getloop: LOOP_SET_STATUS succeeded (%d).\n", ret);
-#endif
-
-  return device;
-}
-
-/* Unsets the device found to be using 'file'. In case of failure, or if none
-   found, return -1. */
-int
-__clrloop (char *file)
-{
-  char *device;
-  int fd, ret;
-
-  device = __findloop (file);
-  if (device == NULL)
-    return -1;
-
-  fd = open (device, O_RDONLY);
-  free (device);
-  ret = ioctl (fd, LOOP_CLR_FD, 0);
-  close (fd);
-
-  return ret;
-}

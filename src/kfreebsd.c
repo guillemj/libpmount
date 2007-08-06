@@ -60,7 +60,50 @@
 #include <sys/mount.h>
 #include <isofs/cd9660/cd9660_mount.h>
 
-int __get_ssector (const char *dev);
+static int
+__get_ssector (const char *dev)
+{
+  struct ioc_toc_header h;
+  struct ioc_read_toc_entry t;
+  struct cd_toc_entry toc_buffer[100];
+  int fd, ntocentries, i;
+
+  if ((fd = open (dev, O_RDONLY)) == -1)
+    return -1;
+  if (ioctl (fd, CDIOREADTOCHEADER, &h) == -1)
+    {
+      close (fd);
+      return -1;
+    }
+
+  ntocentries = h.ending_track - h.starting_track + 1;
+  if (ntocentries > 100)
+    {
+      /* unreasonable, only 100 allowed */
+      close (fd);
+      return -1;
+    }
+  t.address_format = CD_LBA_FORMAT;
+  t.starting_track = 0;
+  t.data_len = ntocentries * sizeof (struct cd_toc_entry);
+  t.data = toc_buffer;
+
+  if (ioctl (fd, CDIOREADTOCENTRYS, (char *) &t) == -1)
+    {
+      close (fd);
+      return -1;
+    }
+  close (fd);
+
+  for (i = ntocentries - 1; i >= 0; i--)
+    if ((toc_buffer[i].control & 4) != 0)
+      /* found a data track */
+      break;
+  if (i < 0)
+    return -1;
+
+  return ntohl (toc_buffer[i].addr.lba);
+}
 
 int
 __pmount (char *fstype, char *mntdir, int mntflags, void *data)
@@ -138,51 +181,6 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
     return PMOUNT_UNKNOWNFS;
 
   return syscall (SYS_mount, my_fstype, mntdir, mntflags, my_data);
-}
-
-int
-__get_ssector (const char *dev)
-{
-  struct ioc_toc_header h;
-  struct ioc_read_toc_entry t;
-  struct cd_toc_entry toc_buffer[100];
-  int fd, ntocentries, i;
-
-  if ((fd = open (dev, O_RDONLY)) == -1)
-    return -1;
-  if (ioctl (fd, CDIOREADTOCHEADER, &h) == -1)
-    {
-      close (fd);
-      return -1;
-    }
-
-  ntocentries = h.ending_track - h.starting_track + 1;
-  if (ntocentries > 100)
-    {
-      /* unreasonable, only 100 allowed */
-      close (fd);
-      return -1;
-    }
-  t.address_format = CD_LBA_FORMAT;
-  t.starting_track = 0;
-  t.data_len = ntocentries * sizeof (struct cd_toc_entry);
-  t.data = toc_buffer;
-
-  if (ioctl (fd, CDIOREADTOCENTRYS, (char *) &t) == -1)
-    {
-      close (fd);
-      return -1;
-    }
-  close (fd);
-
-  for (i = ntocentries - 1; i >= 0; i--)
-    if ((toc_buffer[i].control & 4) != 0)
-      /* found a data track */
-      break;
-  if (i < 0)
-    return -1;
-
-  return ntohl (toc_buffer[i].addr.lba);
 }
 
 int
