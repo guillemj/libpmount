@@ -46,7 +46,6 @@ install: build
 	mkdir -p $(DESTDIR)/lib
 	install -m644 src/pmount.h $(DESTDIR)/usr/include/
 	install -s -m755 libpmount.so.0.0 $(DESTDIR)/lib/
-	strip --strip-unneeded $(DESTDIR)/lib/libpmount.so.0.0
 	install -m755 libpmount.a $(DESTDIR)/usr/lib/
 	ln -s /lib/libpmount.so.0 $(DESTDIR)/usr/lib/libpmount.so
 	ln -s libpmount.so.0.0 $(DESTDIR)/lib/libpmount.so.0
