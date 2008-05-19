@@ -8,7 +8,7 @@ MK_CFLAGS = -D_REENTRANT -DUSE_LOOP
 PACKAGE = libpmount
 SOVERSION = 0.0
 SONAME = $(PACKAGE).so.$(SOVERSION)
-LIBNAME = $(PACKAGE).a
+STNAME = $(PACKAGE).a
 
 SRCS = $(addprefix src/,kerndep.c mtab.c pmount.c)
 SH_OBJS = $(SRCS:.c=.lo)
@@ -20,9 +20,9 @@ ST_OBJS = $(SRCS:.c=.o)
 %.o: %.c
 	$(CC) $(CFLAGS) $(MK_CFLAGS) -c -o $@ $<
 
-build: $(SONAME) $(LIBNAME)
+build: $(SONAME) $(STNAME)
 
-$(LIBNAME): $(ST_OBJS)
+$(STNAME): $(ST_OBJS)
 	$(AR) cru $@ $^
 
 $(SONAME): $(SH_OBJS)
@@ -54,6 +54,6 @@ clean:
 	$(RM) $(ST_OBJS)
 	$(RM) $(SH_OBJS)
 	$(RM) $(SONAME)
-	$(RM) $(LIBNAME)
+	$(RM) $(STNAME)
 	$(MAKE) -C tests $@
 
