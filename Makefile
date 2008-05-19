@@ -5,10 +5,10 @@
 CFLAGS = -Wall -g
 MK_CFLAGS = -D_REENTRANT -DUSE_LOOP
 
-PACKAGE = libpmount
+LIBNAME = libpmount
 SOVERSION = 0.0
-SONAME = $(PACKAGE).so.$(SOVERSION)
-STNAME = $(PACKAGE).a
+SONAME = $(LIBNAME).so.$(SOVERSION)
+STNAME = $(LIBNAME).a
 
 SRCS = $(addprefix src/,kerndep.c mtab.c pmount.c)
 SH_OBJS = $(SRCS:.c=.lo)
