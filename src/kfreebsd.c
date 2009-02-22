@@ -1,5 +1,5 @@
 /*
- * Copyright 2004  Robert Millan <rmh@debian.org>
+ * Copyright © 2004  Robert Millan <rmh@debian.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
- * Copyright (c) 1992, 1993, 1994
+ * Copyright © 1992, 1993, 1994
  *      The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
