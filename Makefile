@@ -57,4 +57,3 @@ clean:
 	$(RM) $(SONAME)
 	$(RM) $(STNAME)
 	$(MAKE) -C tests $@
-

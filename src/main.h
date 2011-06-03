@@ -28,4 +28,3 @@ int __mtab_add(char *line);
 int __mtab_del(char *mntdir);
 char *__mtab_getline(char *mntdir);
 char *__mtab_getword(char *line, int i);
-

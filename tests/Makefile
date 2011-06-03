@@ -26,4 +26,3 @@ clean:
 	$(RM) ext2fs isofs
 	$(RM) *.bin *.img *.dummy
 	rmdir -p *.mnt || true
-

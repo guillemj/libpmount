@@ -39,4 +39,3 @@ int pmount(char *fstype, char *mntdir, int mntflags, void *data);
 int pumount(char *mntdir, int mntflags);
 
 #endif
-

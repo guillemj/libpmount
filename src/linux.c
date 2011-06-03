@@ -268,4 +268,3 @@ __pumount (char *mntdir, int mntflags, char *looped_file)
   errno = 0;
   return 0;
 }
-
