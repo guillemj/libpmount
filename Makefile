@@ -15,10 +15,10 @@ SH_OBJS = $(SRCS:.c=.lo)
 ST_OBJS = $(SRCS:.c=.o)
 
 %.lo: %.c
-	$(CC) $(CFLAGS) $(MK_CFLAGS) -fPIC -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(MK_CFLAGS) -fPIC -c -o $@ $<
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(MK_CFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(MK_CFLAGS) -c -o $@ $<
 
 build: $(SONAME) $(STNAME)
 
@@ -27,6 +27,7 @@ $(STNAME): $(ST_OBJS)
 
 $(SONAME): $(SH_OBJS)
 	$(CC) -shared \
+	  $(LDFLAGS) \
 	  -Wl,-z,defs \
 	  -Wl,-soname -Wl,$(SONAME) \
 	  -Wl,--version-script=Versions \
