@@ -59,7 +59,7 @@ __mtab_add(char *line)
 
 /* Parses mtab and deletes the line that refers to the mount dir 'mntdir'.
    We assume there can't be two lines with same 'mntdir' string. Returns
-   0 is succesful. */
+   0 is successful. */
 int
 __mtab_del (char *mntdir)
 {

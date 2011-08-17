@@ -98,7 +98,7 @@ __findloop (char *file)
 
 /* Finds a free loop device, and sets it for 'file'. If 'file' is already
    set as loop device, __setloop will re-use that device.
-   Returns the loop device name is succesful, NULL otherwise. */
+   Returns the loop device name is successful, NULL otherwise. */
 static char *
 __getloop (char *file)
 {
