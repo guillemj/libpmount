@@ -33,6 +33,7 @@ pmount(char *fstype, char *mntdir, int mntflags, void *data)
 {
 #ifdef USE_MTAB
   char *options, *line;
+  int rc;
 #endif
   int ret;
 
@@ -57,12 +58,16 @@ pmount(char *fstype, char *mntdir, int mntflags, void *data)
     options = strdup("ro");
 
   if ((mntflags & PMOUNT_NOSUID) == 0)
-    asprintf(&options, "%s,suid", options);
+    rc = asprintf(&options, "%s,suid", options);
   else
-    asprintf(&options, "%s,nosuid", options);
+    rc = asprintf(&options, "%s,nosuid", options);
+  if (rc < 0)
+    return -1;
 
   if (ret == __PMOUNT_LOOPBACK)
-    asprintf(&options, "%s,loop", options);
+    rc = asprintf(&options, "%s,loop", options);
+  if (rc < 0)
+    return -1;
 
   /* For non-device filesystems we list "null" as device.
      FIXME: This check only addresses virtual filesystems like procfs_*,
@@ -70,8 +75,10 @@ pmount(char *fstype, char *mntdir, int mntflags, void *data)
   if (data == NULL)
     data = (void *)"null";
 
-  asprintf(&line, "%s %s %s %s %d %d\n",
-          (char *)data, mntdir, fstype, options, 0, 0);
+  rc = asprintf(&line, "%s %s %s %s %d %d\n",
+                (char *)data, mntdir, fstype, options, 0, 0);
+  if (rc < 0)
+    return -1;
   free(options);
 
   ret = __mtab_add(line);

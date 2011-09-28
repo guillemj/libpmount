@@ -44,10 +44,15 @@ __findloop (char *file)
 
   for (i = 0; i <= 15; i++)
     {
+      int rc;
+
       if (i <= 7)
-        asprintf (&loop, "/dev/loop%d", i);
+        rc = asprintf (&loop, "/dev/loop%d", i);
       else
-        asprintf (&loop, "/dev/loop/%d", i - 8);
+        rc = asprintf (&loop, "/dev/loop/%d", i - 8);
+
+      if (rc < 0)
+        break;
 
       /* Make sure this is a loop device */
       if (stat (loop, &st) != 0)

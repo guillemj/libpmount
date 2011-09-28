@@ -67,6 +67,7 @@ __mtab_del (char *mntdir)
   char line[8192]; /* Yeah; I know this is lame, but it works.
                       Patches welcome. */
   char *ret;
+  int rc;
 
   if (rename (_PATH_MOUNTED, _PATH_MOUNTED "~") == -1)
     if (errno != ENOENT)
@@ -87,7 +88,12 @@ __mtab_del (char *mntdir)
       return PMOUNT_NOTME;
     }
 
-  asprintf (&mntdir, " %s ", mntdir);
+  rc = asprintf (&mntdir, " %s ", mntdir);
+  if (rc < 0)
+    {
+      perror ("asprintf");
+      return PMOUNT_NOTME;
+    }
   while (1)
     {
       ret = fgets (line, sizeof(line), mtab_r);
