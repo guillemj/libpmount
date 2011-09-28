@@ -46,7 +46,7 @@ __mtab_add(char *line)
     return PMOUNT_NOTME;
   }
 
-  fprintf (mtab, line);
+  fprintf (mtab, "%s", line);
 
   if (fclose (mtab) != 0)
     {
@@ -99,7 +99,7 @@ __mtab_del (char *mntdir)
           return PMOUNT_NOTME;
         }
       if (strstr (line, mntdir) == NULL)
-        fprintf (mtab_w, ret);
+        fprintf (mtab_w, "%s", ret);
     }
   free (mntdir);
 

@@ -1,3 +1,10 @@
+libpmount (0.0.15) UNRELEASED; urgency=low
+
+  * Use a format string on fprintf() instead of directly using a string
+    variable to fix build with -Werror=format-security. Closes: #643432
+
+ -- Guillem Jover <guillem@debian.org>  Wed, 28 Sep 2011 19:33:06 +0200
+
 libpmount (0.0.14) unstable; urgency=low
 
   * Switch the symbols file to use symver tags instead of symbol patterns.
