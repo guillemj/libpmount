@@ -30,7 +30,7 @@ $(SONAME): $(SH_OBJS)
 	  $(LDFLAGS) \
 	  -Wl,-z,defs \
 	  -Wl,-soname -Wl,$(SONAME) \
-	  -Wl,--version-script=Versions \
+	  -Wl,--version-script=libpmount.map \
 	  -o $@ $^
 
 check: build
