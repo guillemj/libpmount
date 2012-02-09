@@ -122,8 +122,6 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
     my_mntflags |= MNT_NOSUID;
   if ((mntflags & PMOUNT_NOEXEC) != 0)
     my_mntflags |= MNT_NOEXEC;
-  if ((mntflags & PMOUNT_NODEV) != 0)
-    my_mntflags |= MNT_NODEV;
   if ((mntflags & PMOUNT_SYNCHRONOUS) != 0)
     my_mntflags |= MNT_SYNCHRONOUS;
 
