@@ -1,0 +1,5 @@
+*.img
+*.img.tmpl
+*.mnt
+test-ext2fs
+test-isofs

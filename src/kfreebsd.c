@@ -44,6 +44,8 @@
  * SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <sys/cdio.h>
 #include <sys/file.h>
 #include <sys/syscall.h>

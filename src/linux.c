@@ -17,7 +17,7 @@
  *
  */
 
-#define _GNU_SOURCE
+#include "config.h"
 
 #include <sys/mount.h>
 #include <sys/stat.h>

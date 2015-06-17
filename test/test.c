@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <pmount.h>
 #include <stdio.h>
 
