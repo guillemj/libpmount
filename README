@@ -1,5 +1,36 @@
+libpmount - Portable mount library
 
-List of supported filesystems:
+This library implements functions pmount() and pumount() as wrappers to
+the real mount/unmount unportable interfaces on each platform.
+
+Its goal is to provide a consistent interface application programmers can
+rely on for mounting and umounting filesystems without having to address
+kernel-related portability problems.
+
+
+Releases
+--------
+
+  <http://archive.hadrons.org/software/libpmount/>
+
+
+Contact
+-------
+
+The mail address is:
+
+  Guillem Jover <guillem@hadrons.org>
+
+
+Source Repository
+-----------------
+
+  <http://git.hadrons.org/cgit/libpmount.git>
+  <git://git.hadrons.org/git/libpmount.git>
+
+
+Supported filesystems
+---------------------
 
 ext2fs
 iso9660
