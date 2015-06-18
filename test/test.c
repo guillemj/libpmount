@@ -1,7 +1,9 @@
 #include "config.h"
 
+#include <sys/stat.h>
 #include <sys/types.h>
 
+#include <errno.h>
 #include <unistd.h>
 #include <pmount.h>
 #include <string.h>
@@ -23,6 +25,13 @@ main()
 
   if (geteuid() != 0)
     return 77;
+
+  error = mkdir(FSMOUNT, 0755);
+  if (error < 0 && errno != EEXIST)
+  {
+    perror("mkdir failed");
+    return 1;
+  }
 
   error = pmount(FSNAME, FSMOUNT, PMOUNT_READONLY, FSIMAGE);
   if (error == -1)
