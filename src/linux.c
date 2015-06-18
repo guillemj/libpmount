@@ -258,7 +258,7 @@ __pumount (char *mntdir, int mntflags, char *looped_file)
       fprintf (stderr, "__pumount: pumount told me the loop is %s\n",
                looped_file);
 #endif
-      if (__clrloop (looped_file) == -1);
+      if (__clrloop (looped_file) == -1)
         return -1;
     }
 #ifdef verbose
