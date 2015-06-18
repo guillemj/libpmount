@@ -180,6 +180,7 @@ char *
 __mtab_getword (char *line, int i)
 {
   char *tmp;
+  size_t linelen;
 
   for (; i > 0 ; i--)
     /* Find next space. */
@@ -190,10 +191,11 @@ __mtab_getword (char *line, int i)
   if (tmp == NULL)
     return NULL;
 
-  line[tmp - line] = '\0';
+  linelen = tmp - line;
+  line[linelen] = '\0';
 
   /* Sanity check */
-  if (strlen (line) != (tmp - line))
+  if (strlen (line) != linelen)
     return NULL;
 
   return line;
