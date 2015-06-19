@@ -22,6 +22,7 @@
 #include <paths.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -186,6 +187,9 @@ __mtab_getword (char *line, int i)
 
   /* Trim everything after last space. */
   tmp = strchr (line, ' ');
+  if (tmp == NULL)
+    return NULL;
+
   line[tmp - line] = '\0';
 
   /* Sanity check */
