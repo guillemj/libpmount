@@ -177,7 +177,7 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
 {
   char *my_fstype = fstype;
   void *my_data = NULL;
-  int my_mntflags = 0;
+  int my_mntflags = MS_MGC_VAL;
   char *device = NULL;
 
   if ((mntflags & PMOUNT_REMOUNT) != 0)
