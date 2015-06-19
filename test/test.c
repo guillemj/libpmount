@@ -3,12 +3,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <limits.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pmount.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define FSIMAGE FSNAME ".img"
 #define FSMOUNT FSNAME ".mnt"
@@ -17,6 +19,7 @@ int
 main()
 {
   const char *env;
+  char *fsmount, *fsimage;
   int error;
 
   env = getenv("FAKEROOTKEY");
@@ -33,14 +36,22 @@ main()
     return 1;
   }
 
-  error = pmount(FSNAME, FSMOUNT, PMOUNT_READONLY, FSIMAGE);
+  fsmount = realpath(FSMOUNT, NULL);
+  fsimage = realpath(FSIMAGE, NULL);
+  if (fsmount == NULL || fsimage == NULL)
+  {
+    perror("realpath failed");
+    return 1;
+  }
+
+  error = pmount(FSNAME, fsmount, PMOUNT_READONLY, fsimage);
   if (error == -1)
   {
     perror("pmount failed");
     return 1;
   }
 
-  error = pumount(FSMOUNT, 0);
+  error = pumount(fsmount, 0);
   if (error == -1)
   {
     perror("WARNING: pmount succeeded, but pumount failed");
