@@ -17,17 +17,17 @@ test_ext2fs_DEPENDENCIES = ext2fs.img
 test_ext2fs_SOURCES = test.c
 test_ext2fs_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"ext2fs\"
 
-isofs.img:
+iso9660.img:
 	dd if=/dev/zero of=$@.tmpl bs=1024k count=1
 	genisoimage -o $@ -r $@.tmpl
 
-test_isofs_DEPENDENCIES = isofs.img
-test_isofs_SOURCES = test.c
-test_isofs_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"isofs\"
+test_iso9660_DEPENDENCIES = iso9660.img
+test_iso9660_SOURCES = test.c
+test_iso9660_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"iso9660\"
 
 check_PROGRAMS = \
 	test-ext2fs \
-	test-isofs \
+	test-iso9660 \
 	$(nil)
 
 TESTS = $(check_PROGRAMS)

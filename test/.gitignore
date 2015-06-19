@@ -2,4 +2,4 @@
 *.img.tmpl
 *.mnt
 test-ext2fs
-test-isofs
+test-iso9660
