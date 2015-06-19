@@ -105,10 +105,10 @@ __findloop (char *file)
    set as loop device, __setloop will re-use that device.
    Returns the loop device name is successful, NULL otherwise. */
 static char *
-__getloop (char *file)
+__getloop (char *file, int mntflags)
 {
   char *device;
-  int fd_file, fd_device, ret;
+  int fd_file, fd_device, fd_flags, ret;
   struct loop_info64 loopinfo;
 
   device = __findloop (file);
@@ -123,8 +123,12 @@ __getloop (char *file)
   fprintf (stderr, "__getloop: Setting up %s in %s\n", file, device);
 #endif
 
-  fd_file = open (file, O_RDONLY | O_WRONLY);
-  fd_device = open (device, O_RDONLY);
+  if (mntflags & PMOUNT_READONLY)
+    fd_flags = O_RDONLY;
+  else
+    fd_flags = O_RDWR;
+  fd_file = open (file, fd_flags);
+  fd_device = open (device, fd_flags);
   ret = ioctl (fd_device, LOOP_SET_FD, fd_file);
   close (fd_file);
   if (ret == -1)
@@ -141,6 +145,8 @@ __getloop (char *file)
     strncpy ((char *)loopinfo.lo_file_name, file, LO_NAME_SIZE);
   else
     return NULL; /* Fuck it. Filename is too long! */
+  if (mntflags & PMOUNT_READONLY)
+    loopinfo.lo_flags |= LO_FLAGS_READ_ONLY;
   ret = ioctl (fd_device, LOOP_SET_STATUS64, &loopinfo);
   close (fd_device);
   if (ret == -1)
@@ -224,7 +230,7 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
 #ifdef USE_LOOP
       if (errno == ENOTBLK)
         {
-          device = __getloop (device);
+          device = __getloop (device, mntflags);
 
           if (mount (device, mntdir, my_fstype, my_mntflags,
                      my_data) == -1)
