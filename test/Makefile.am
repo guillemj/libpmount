@@ -19,7 +19,7 @@ test_ext2fs_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"ext2fs\"
 
 isofs.img:
 	dd if=/dev/zero of=$@.tmpl bs=1024k count=1
-	mkisofs -o $@ -r $@.tmpl
+	genisoimage -o $@ -r $@.tmpl
 
 test_isofs_DEPENDENCIES = isofs.img
 test_isofs_SOURCES = test.c
