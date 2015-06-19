@@ -39,7 +39,7 @@ __findloop (char *file)
 {
   char *loop;
   int i, fd, ret;
-  struct loop_info loopinfo;
+  struct loop_info64 loopinfo;
   struct stat st;
 
   for (i = 0; i <= 15; i++)
@@ -66,7 +66,7 @@ __findloop (char *file)
       if (fd < 0)
         break;
 
-      ret = ioctl (fd, LOOP_GET_STATUS, &loopinfo);
+      ret = ioctl (fd, LOOP_GET_STATUS64, &loopinfo);
       close (fd);
 
       if (ret == 0)
@@ -76,7 +76,7 @@ __findloop (char *file)
 #endif
           if (file != NULL)
             {
-              if (!strcmp (file, loopinfo.lo_name))
+              if (!strcmp (file, (char *)loopinfo.lo_file_name))
                 {
 #ifdef verbose
                   fprintf (stderr, "__findloop: We were looking for file %s"
@@ -109,7 +109,7 @@ __getloop (char *file)
 {
   char *device;
   int fd_file, fd_device, ret;
-  struct loop_info loopinfo;
+  struct loop_info64 loopinfo;
 
   device = __findloop (file);
   if (device != NULL)
@@ -138,15 +138,15 @@ __getloop (char *file)
 
   memset (&loopinfo, 0, sizeof (loopinfo));
   if (strlen (file) <= LO_NAME_SIZE)
-    strncpy (loopinfo.lo_name, file, LO_NAME_SIZE);
+    strncpy ((char *)loopinfo.lo_file_name, file, LO_NAME_SIZE);
   else
     return NULL; /* Fuck it. Filename is too long! */
-  ret = ioctl (fd_device, LOOP_SET_STATUS, &loopinfo);
+  ret = ioctl (fd_device, LOOP_SET_STATUS64, &loopinfo);
   close (fd_device);
   if (ret == -1)
     return NULL;
 #ifdef verbose
-  fprintf (stderr, "__getloop: LOOP_SET_STATUS succeeded (%d).\n", ret);
+  fprintf (stderr, "__getloop: LOOP_SET_STATUS64 succeeded (%d).\n", ret);
 #endif
 
   return device;
