@@ -32,6 +32,34 @@
 
 #include "main.h"
 
+/**
+ * Find a free loopback device.
+ *
+ * This interface is only available since Linux 3.1.
+ */
+static char *
+__find_free_loop (void)
+{
+  int fd, ret, rc;
+  char *loop;
+
+  fd = open ("/dev/loop-control", O_RDWR);
+  if (fd < 0)
+    return NULL;
+
+  ret = ioctl (fd, LOOP_CTL_GET_FREE);
+  close (fd);
+
+  if (ret < 0)
+    return NULL;
+
+  rc = asprintf (&loop, "/dev/loop%d", ret);
+  if (rc >= 0)
+    return loop;
+
+  return NULL;
+}
+
 /* If 'file' is NULL, find a free device. Otherwise find a device that is
    already set for 'file'. In either case, on failure return NULL. */
 static char *
@@ -41,6 +69,13 @@ __findloop (char *file)
   int i, fd, ret;
   struct loop_info64 loopinfo;
   struct stat st;
+
+  if (file == NULL)
+  {
+    loop = __find_free_loop ();
+    if (loop)
+      return loop;
+  }
 
   for (i = 0; i <= 15; i++)
     {
