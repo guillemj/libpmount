@@ -127,16 +127,16 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
   if ((mntflags & PMOUNT_SYNCHRONOUS) != 0)
     my_mntflags |= MNT_SYNCHRONOUS;
 
-  if (!strcmp(fstype, "ext2fs"))
+  if (strcmp(fstype, "ext2fs") == 0)
   {
     my_data = data;
   }
-  else if (!strcmp(fstype, "procfs_linux"))
+  else if (strcmp(fstype, "procfs_linux") == 0)
   {
     my_fstype = "linprocfs";
     my_data = data;
   }
-  else if (!strcmp(fstype, "iso9660"))
+  else if (strcmp(fstype, "iso9660") == 0)
   {
     my_fstype = "cd9660";
 
@@ -176,7 +176,7 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
     }
     my_data = (void *)&args;
   }
-  else if (!strcmp(fstype, "nfs"))
+  else if (strcmp(fstype, "nfs") == 0)
   {
     my_data = NULL;		/* FIXME */
   }

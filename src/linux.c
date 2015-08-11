@@ -110,7 +110,7 @@ __findloop(char *file)
 
       if (file != NULL)
       {
-        if (!strcmp(file, (char *)loopinfo.lo_file_name))
+        if (strcmp(file, (char *)loopinfo.lo_file_name) == 0)
         {
           verbose("%s: Looking for file %s, which seems to match device %s\n",
                   __func__, file, loop);
@@ -225,21 +225,21 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
   if ((mntflags & PMOUNT_SYNCHRONOUS) != 0)
     my_mntflags |= MS_SYNCHRONOUS;
 
-  if (!strcmp(fstype, "iso9660"))
+  if (strcmp(fstype, "iso9660") == 0)
   {
     device = (char *) data;
   }
-  else if (!strcmp(fstype, "ext2fs"))
+  else if (strcmp(fstype, "ext2fs") == 0)
   {
     my_fstype = "ext2";
     device = (char *) data;
   }
-  else if (!strcmp(fstype, "procfs_linux"))
+  else if (strcmp(fstype, "procfs_linux") == 0)
   {
     my_fstype = "proc";
     device = (char *) data;
   }
-  else if (!strcmp(fstype, "nfs"))
+  else if (strcmp(fstype, "nfs") == 0)
   {
     my_data = NULL; /* FIXME */
   }
