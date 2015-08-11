@@ -1,6 +1,11 @@
 #include "config.h"
 
+#include <sys/types.h>
+
+#include <unistd.h>
 #include <pmount.h>
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #define FSIMAGE FSNAME ".img"
@@ -9,7 +14,15 @@
 int
 main()
 {
+  const char *env;
   int error;
+
+  env = getenv("FAKEROOTKEY");
+  if (env && strlen(env) != 0)
+    return 77;
+
+  if (geteuid() != 0)
+    return 77;
 
   error = pmount(FSNAME, FSMOUNT, PMOUNT_READONLY, FSIMAGE);
   if (error == -1)
