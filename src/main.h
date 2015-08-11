@@ -28,3 +28,9 @@ int __mtab_add(char *line);
 int __mtab_del(char *mntdir);
 char *__mtab_getline(char *mntdir);
 char *__mtab_getword(char *line, int i);
+
+#ifdef DEBUG
+#define verbose(fmt, ...) fprintf (stderr, fmt, __VA_ARGS__)
+#else
+#define verbose(fmt, ...)
+#endif

@@ -106,27 +106,22 @@ __findloop (char *file)
 
       if (ret == 0)
         {
-#ifdef verbose
-          fprintf (stderr, "__findloop: Device %s is in use\n", loop);
-#endif
+          verbose ("%s: Device %s is in use\n", __func__, loop);
+
           if (file != NULL)
             {
               if (!strcmp (file, (char *)loopinfo.lo_file_name))
                 {
-#ifdef verbose
-                  fprintf (stderr, "__findloop: We were looking for file %s"
-                           ", which seems to match device %s\n", file, loop);
-#endif
+                  verbose ("%s: We were looking for file %s, which seems to "
+                           "match device %s\n", __func__, file, loop);
                   return loop;
                 }
             }
         }
       else if ((file == NULL) && (errno == ENXIO))
         {
-#ifdef verbose
-          fprintf (stderr, "__findloop: We were looking for a free device, "
-                   "and %s is.\n", loop);
-#endif
+          verbose ("%s: We were looking for a free device, and %s is.\n",
+                   __func__, loop);
           return loop;
         }
     }
@@ -154,9 +149,7 @@ __getloop (char *file, int mntflags)
   if (device == NULL)
     return NULL;
 
-#ifdef verbose
-  fprintf (stderr, "__getloop: Setting up %s in %s\n", file, device);
-#endif
+  verbose ("%s: Setting up %s in %s\n", __func__, file, device);
 
   if (mntflags & PMOUNT_READONLY)
     fd_flags = O_RDONLY;
@@ -171,9 +164,7 @@ __getloop (char *file, int mntflags)
      close (fd_device);
      return NULL;
    }
-#ifdef verbose
-  fprintf (stderr, "__getloop: LOOP_SET_FD succeeded (%d).\n", ret);
-#endif
+  verbose ("%s: LOOP_SET_FD succeeded (%d).\n", __func__, ret);
 
   memset (&loopinfo, 0, sizeof (loopinfo));
   if (strlen (file) <= LO_NAME_SIZE)
@@ -189,9 +180,7 @@ __getloop (char *file, int mntflags)
   close (fd_device);
   if (ret == -1)
     return NULL;
-#ifdef verbose
-  fprintf (stderr, "__getloop: LOOP_SET_STATUS64 succeeded (%d).\n", ret);
-#endif
+  verbose ("%s: LOOP_SET_STATUS64 succeeded (%d).\n", __func__, ret);
 
   return device;
 }
@@ -258,10 +247,7 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
   else
     return PMOUNT_UNKNOWNFS;
 
-#ifdef verbose
-          fprintf (stderr, "__pmount: Let's mount %s on %s.\n", device,
-		  mntdir);
-#endif
+  verbose ("%s: Let's mount %s on %s.\n", __func__, device, mntdir);
 
   if (mount (device, mntdir, my_fstype, my_mntflags, my_data) == -1)
     {
@@ -298,20 +284,14 @@ __pumount (char *mntdir, int mntflags, char *looped_file)
 #ifdef USE_LOOP
   if (looped_file != NULL)
     {
-#ifdef verbose
-      fprintf (stderr, "__pumount: pumount told me the loop is %s\n",
-               looped_file);
-#endif
+      verbose ("%s: pumount told me the loop is %s\n", __func__, looped_file);
       if (__clrloop (looped_file) == -1)
         return -1;
     }
-#ifdef verbose
   else
     {
-      fprintf (stderr, "__pumount: pumount told me there's no such loop.\n");
+      verbose ("%s: pumount told me there's no such loop.\n", __func__);
     }
-#endif
-
 #endif
 
   errno = 0;

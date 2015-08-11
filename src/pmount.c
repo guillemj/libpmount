@@ -99,19 +99,17 @@ pumount(char *mntdir, int mntflags)
   line = __mtab_getline(mntdir);
   opts = __mtab_getword(line, 3);
 
-#ifdef verbose
-  fprintf(stderr, "pumount: I'm going to umount \"%s\"\n", line);
-#endif
+  verbose("%s: I'm going to umount \"%s\"\n", __func__, line);
   if (strstr(opts, ",loop") == NULL)
     file = NULL;
   else
     file = __mtab_getword(line, 0);
 
-#ifdef verbose
+#ifdef DEBUG
   if (file == NULL)
-    fprintf(stderr, "pumount: There was no loop device.\n");
+    verbose("%s: There was no loop device.\n", __func__);
   else
-    fprintf(stderr, "pumount: Seems like file %s was looped.\n", file);
+    verbose("%s: Seems like file %s was looped.\n", __func__, file);
 #endif
 
 #else
