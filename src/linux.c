@@ -171,7 +171,7 @@ __getloop (char *file, int mntflags)
   else
   {
     close (fd_device);
-    return NULL; /* Fuck it. Filename is too long! */
+    return NULL; /* Bail out. Filename is too long! */
   }
   if (mntflags & PMOUNT_READONLY)
     loopinfo.lo_flags |= LO_FLAGS_READ_ONLY;
