@@ -255,15 +255,11 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
         {
           device = __getloop (device, mntflags);
 
-          if (mount (device, mntdir, my_fstype, my_mntflags,
-                     my_data) == -1)
-            return -1;
-          else
+          if (mount (device, mntdir, my_fstype, my_mntflags, my_data) == 0)
             return __PMOUNT_LOOPBACK;
         }
-      else
 #endif
-        return -1;
+      return -1;
     }
 
   errno = 0;
