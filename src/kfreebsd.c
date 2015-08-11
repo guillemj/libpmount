@@ -83,15 +83,15 @@ __iso_get_ssector(const char *dev)
   if (ntocentries > 100)
   {
     /* unreasonable, only 100 allowed */
-    close (fd);
+    close(fd);
     return -1;
   }
   t.address_format = CD_LBA_FORMAT;
   t.starting_track = 0;
-  t.data_len = ntocentries * sizeof (struct cd_toc_entry);
+  t.data_len = ntocentries * sizeof(struct cd_toc_entry);
   t.data = toc_buffer;
 
-  if (ioctl(fd, CDIOREADTOCENTRYS, (char *) &t) == -1)
+  if (ioctl(fd, CDIOREADTOCENTRYS, (char *)&t) == -1)
   {
     close(fd);
     return -1;
@@ -140,7 +140,7 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
   {
     my_fstype = "cd9660";
 
-    memset(&args, 0, sizeof args);
+    memset(&args, 0, sizeof(args));
     args.ssector = -1;
     args.cs_disk = NULL;
     args.cs_local = NULL;
@@ -150,7 +150,7 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
      */
     mntflags |= MNT_RDONLY;
     args.export.ex_flags = MNT_EXRDONLY;
-    args.fspec = (char *) data;
+    args.fspec = (char *)data;
     args.export.ex_root = -2;
     args.flags = 0;
 
@@ -176,7 +176,7 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
     }
     my_data = (void *)&args;
   }
-  else if (!strcmp (fstype, "nfs"))
+  else if (!strcmp(fstype, "nfs"))
   {
     my_data = NULL;		/* FIXME */
   }
@@ -187,7 +187,7 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
 }
 
 int
-__pumount (char *mntdir, int mntflags)
+__pumount(char *mntdir, int mntflags)
 {
   int my_mntflags = 0;
 

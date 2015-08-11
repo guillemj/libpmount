@@ -47,13 +47,13 @@ __mtab_add(char *line)
     return PMOUNT_NOTME;
   }
 
-  fprintf (mtab, "%s", line);
+  fprintf(mtab, "%s", line);
 
-  if (fclose (mtab) != 0)
-    {
-      perror ("fclose");
-      return PMOUNT_NOTME;
-    }
+  if (fclose(mtab) != 0)
+  {
+    perror("fclose");
+    return PMOUNT_NOTME;
+  }
 
   return 0;
 }
@@ -62,7 +62,7 @@ __mtab_add(char *line)
    We assume there can't be two lines with same 'mntdir' string. Returns
    0 is successful. */
 int
-__mtab_del (char *mntdir)
+__mtab_del(char *mntdir)
 {
   FILE *mtab_r, *mtab_w;
   char line[8192]; /* Yeah; I know this is lame, but it works.
@@ -70,61 +70,61 @@ __mtab_del (char *mntdir)
   char *ret;
   int rc;
 
-  if (rename (_PATH_MOUNTED, _PATH_MOUNTED "~") == -1)
+  if (rename(_PATH_MOUNTED, _PATH_MOUNTED "~") == -1)
     if (errno != ENOENT)
-      {
-        perror ("rename");
-        return PMOUNT_NOTME;
-      }
-  mtab_r = fopen (_PATH_MOUNTED "~", "r");
+    {
+      perror("rename");
+      return PMOUNT_NOTME;
+    }
+  mtab_r = fopen(_PATH_MOUNTED "~", "r");
   if (mtab_r == NULL)
-    {
-      perror ("fopen");
-      return PMOUNT_NOTME;
-    }
-  mtab_w = fopen (_PATH_MOUNTED, "w");
+  {
+    perror("fopen");
+    return PMOUNT_NOTME;
+  }
+  mtab_w = fopen(_PATH_MOUNTED, "w");
   if (mtab_w == NULL)
-    {
-      perror ("fopen");
-      return PMOUNT_NOTME;
-    }
+  {
+    perror("fopen");
+    return PMOUNT_NOTME;
+  }
 
-  rc = asprintf (&mntdir, " %s ", mntdir);
+  rc = asprintf(&mntdir, " %s ", mntdir);
   if (rc < 0)
-    {
-      perror ("asprintf");
-      return PMOUNT_NOTME;
-    }
+  {
+    perror("asprintf");
+    return PMOUNT_NOTME;
+  }
   while (1)
+  {
+    ret = fgets(line, sizeof(line), mtab_r);
+    if (ret == NULL)
     {
-      ret = fgets (line, sizeof(line), mtab_r);
-      if (ret == NULL)
-        {
-          if (errno == 0)
-            break;
-          perror ("fgets");
-          return PMOUNT_NOTME;
-        }
-      if (strstr (line, mntdir) == NULL)
-        fprintf (mtab_w, "%s", ret);
+      if (errno == 0)
+        break;
+      perror("fgets");
+      return PMOUNT_NOTME;
     }
-  free (mntdir);
+    if (strstr(line, mntdir) == NULL)
+      fprintf(mtab_w, "%s", ret);
+  }
+  free(mntdir);
 
-  if (fclose (mtab_r) != 0)
-    {
-      perror ("fclose");
-      return PMOUNT_NOTME;
-    }
-  if (fclose (mtab_w) != 0)
-    {
-      perror ("fclose");
-      return PMOUNT_NOTME;
-    }
-  if (unlink (_PATH_MOUNTED "~") != 0)
-    {
-      perror ("unlink");
-      return PMOUNT_NOTME;
-    }
+  if (fclose(mtab_r) != 0)
+  {
+    perror("fclose");
+    return PMOUNT_NOTME;
+  }
+  if (fclose(mtab_w) != 0)
+  {
+    perror("fclose");
+    return PMOUNT_NOTME;
+  }
+  if (unlink(_PATH_MOUNTED "~") != 0)
+  {
+    perror("unlink");
+    return PMOUNT_NOTME;
+  }
 
   return 0;
 }
@@ -132,65 +132,65 @@ __mtab_del (char *mntdir)
 /* Searches mtab for a line using 'mntdir'. If successful, returns the whole
    line. Otherwise, returns NULL. */
 char *
-__mtab_getline (char *mntdir)
+__mtab_getline(char *mntdir)
 {
   FILE *mtab;
   char line[8192]; /* Yeah; I know this is lame, but it works.
                       Patches welcome. */
   char *ret;
 
-  mtab = fopen (_PATH_MOUNTED, "r");
+  mtab = fopen(_PATH_MOUNTED, "r");
   if (mtab == NULL)
-    {
-      perror ("fopen");
-      return NULL;
-    }
+  {
+    perror("fopen");
+    return NULL;
+  }
 
-  if (asprintf (&mntdir, " %s ", mntdir) < 0)
-    {
-      perror ("asprintf");
-      return NULL;
-    }
+  if (asprintf(&mntdir, " %s ", mntdir) < 0)
+  {
+    perror("asprintf");
+    return NULL;
+  }
   while (1)
+  {
+    ret = fgets(line, sizeof(line), mtab);
+    if (ret == NULL)
     {
-      ret = fgets (line, sizeof(line), mtab);
-      if (ret == NULL)
-        {
-          if (errno == 0)
-            break;
-          perror ("fgets");
-          return NULL;
-        }
-      if (strstr (line, mntdir) != NULL)
-      {
-        ret = strdup(line);
+      if (errno == 0)
         break;
-      }
-    }
-  free (mntdir);
-
-  if (fclose (mtab) != 0)
-    {
-      perror ("fclose");
+      perror("fgets");
       return NULL;
     }
+    if (strstr(line, mntdir) != NULL)
+    {
+      ret = strdup(line);
+      break;
+    }
+  }
+  free(mntdir);
+
+  if (fclose(mtab) != 0)
+  {
+    perror("fclose");
+    return NULL;
+  }
 
   return ret;
 }
 
 /* Returns word number 'i' in 'line'. In case of failure, returns NULL. */
 char *
-__mtab_getword (char *line, int i)
+__mtab_getword(char *line, int i)
 {
   char *tmp;
   size_t linelen;
 
   for (; i > 0 ; i--)
     /* Find next space. */
-    line = (strchr (line, ' ') + 1);
+    line = (strchr(line, ' ') + 1);
 
   /* Trim everything after last space. */
-  tmp = strchr (line, ' ');
+  tmp = strchr(line, ' ');
   if (tmp == NULL)
     return NULL;
 
@@ -198,7 +198,7 @@ __mtab_getword (char *line, int i)
   line[linelen] = '\0';
 
   /* Sanity check */
-  if (strlen (line) != linelen)
+  if (strlen(line) != linelen)
     return NULL;
 
   return line;
