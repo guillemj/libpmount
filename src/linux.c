@@ -112,16 +112,15 @@ __findloop (char *file)
             {
               if (!strcmp (file, (char *)loopinfo.lo_file_name))
                 {
-                  verbose ("%s: We were looking for file %s, which seems to "
-                           "match device %s\n", __func__, file, loop);
+                  verbose ("%s: Looking for file %s, which seems to match device %s\n",
+                           __func__, file, loop);
                   return loop;
                 }
             }
         }
       else if ((file == NULL) && (errno == ENXIO))
         {
-          verbose ("%s: We were looking for a free device, and %s is.\n",
-                   __func__, loop);
+          verbose ("%s: Looking for a free device, and %s is.\n", __func__, loop);
           return loop;
         }
     }
@@ -247,7 +246,7 @@ __pmount (char *fstype, char *mntdir, int mntflags, void *data)
   else
     return PMOUNT_UNKNOWNFS;
 
-  verbose ("%s: Let's mount %s on %s.\n", __func__, device, mntdir);
+  verbose ("%s: Mounting %s on %s.\n", __func__, device, mntdir);
 
   if (mount (device, mntdir, my_fstype, my_mntflags, my_data) == -1)
     {
@@ -284,13 +283,13 @@ __pumount (char *mntdir, int mntflags, char *looped_file)
 #ifdef USE_LOOP
   if (looped_file != NULL)
     {
-      verbose ("%s: pumount told me the loop is %s\n", __func__, looped_file);
+      verbose ("%s: pumount claims the loop is %s\n", __func__, looped_file);
       if (__clrloop (looped_file) == -1)
         return -1;
     }
   else
     {
-      verbose ("%s: pumount told me there's no such loop.\n", __func__);
+      verbose ("%s: pumount claims there is no such loop.\n", __func__);
     }
 #endif
 

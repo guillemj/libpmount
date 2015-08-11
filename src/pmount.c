@@ -99,7 +99,7 @@ pumount(char *mntdir, int mntflags)
   line = __mtab_getline(mntdir);
   opts = __mtab_getword(line, 3);
 
-  verbose("%s: I'm going to umount \"%s\"\n", __func__, line);
+  verbose("%s: Going to umount \"%s\"\n", __func__, line);
   if (strstr(opts, ",loop") == NULL)
     file = NULL;
   else
