@@ -3,5 +3,5 @@
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
 # include "kfreebsd.c"
 #else
-# error portme
+# error libpmount not yet ported to this system/kernel, patches welcome
 #endif
