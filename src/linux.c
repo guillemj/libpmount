@@ -144,7 +144,10 @@ __getloop (char *file, int mntflags)
   if (strlen (file) <= LO_NAME_SIZE)
     strncpy ((char *)loopinfo.lo_file_name, file, LO_NAME_SIZE);
   else
+  {
+    close (fd_device);
     return NULL; /* Fuck it. Filename is too long! */
+  }
   if (mntflags & PMOUNT_READONLY)
     loopinfo.lo_flags |= LO_FLAGS_READ_ONLY;
   ret = ioctl (fd_device, LOOP_SET_STATUS64, &loopinfo);
