@@ -14,7 +14,7 @@ ext2fs.img:
 	mke2fs -F $@
 
 test_ext2fs_DEPENDENCIES = ext2fs.img
-test_ext2fs_SOURCES = test.c
+test_ext2fs_SOURCES = test-loop.c
 test_ext2fs_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"ext2fs\"
 
 iso9660.img:
@@ -22,7 +22,7 @@ iso9660.img:
 	genisoimage -o $@ -r $@.tmpl
 
 test_iso9660_DEPENDENCIES = iso9660.img
-test_iso9660_SOURCES = test.c
+test_iso9660_SOURCES = test-loop.c
 test_iso9660_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"iso9660\"
 
 test_mtab_SOURCES = test-mtab.c
