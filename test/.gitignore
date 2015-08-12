@@ -3,3 +3,4 @@
 *.mnt
 test-ext2fs
 test-iso9660
+test-mtab

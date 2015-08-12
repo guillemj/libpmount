@@ -25,9 +25,13 @@ test_iso9660_DEPENDENCIES = iso9660.img
 test_iso9660_SOURCES = test.c
 test_iso9660_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"iso9660\"
 
+test_mtab_SOURCES = test-mtab.c
+test_mtab_LDADD = $(top_builddir)/src/mtab.o
+
 check_PROGRAMS = \
 	test-ext2fs \
 	test-iso9660 \
+	test-mtab \
 	$(nil)
 
 TESTS = $(check_PROGRAMS)
