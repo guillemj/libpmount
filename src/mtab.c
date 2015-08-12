@@ -162,7 +162,10 @@ __mtab_getline (char *mntdir)
           return NULL;
         }
       if (strstr (line, mntdir) != NULL)
+      {
+        ret = strdup(line);
         break;
+      }
     }
   free (mntdir);
 
