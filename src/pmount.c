@@ -97,7 +97,11 @@ pumount(char *mntdir, int mntflags)
 #ifdef USE_MTAB
   char *line, *file, *opts;
   line = __mtab_getline(mntdir);
+  if (line == NULL)
+    return -1;
   opts = __mtab_getword(line, 3);
+  if (opts == NULL)
+    return -1;
 
   verbose("%s: Going to umount \"%s\"\n", __func__, line);
   if (strstr(opts, ",loop") == NULL)
