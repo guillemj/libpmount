@@ -24,6 +24,7 @@
 int __pmount(char *fstype, char *mntdir, int mntflags, void *data);
 int __pumount(char *mntdir, int mntflags, char *looped_file);
 
+void __mtab_setpath(const char *path);
 int __mtab_add(char *line);
 int __mtab_del(char *mntdir);
 char *__mtab_getline(char *mntdir);

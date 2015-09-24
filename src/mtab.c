@@ -34,13 +34,25 @@
 # define _PATH_MOUNTED "/etc/mtab"
 #endif
 
+static const char *__mtab_path = _PATH_MOUNTED;
+
+/* Set the mtab pathname to use. */
+void
+__mtab_setpath(const char *path)
+{
+  if (path == NULL)
+    __mtab_path = _PATH_MOUNTED;
+  else
+    __mtab_path = path;
+}
+
 /* Add a line to mtab. Returns 0 on success. */
 int
 __mtab_add(char *line)
 {
   FILE *mtab;
 
-  mtab = fopen(_PATH_MOUNTED, "a");
+  mtab = fopen(__mtab_path, "a");
   if (mtab == NULL)
   {
     perror("fopen");
@@ -65,24 +77,31 @@ int
 __mtab_del(char *mntdir)
 {
   FILE *mtab_r, *mtab_w;
+  char *mtab_path_new;
   char line[8192]; /* Yeah; I know this is lame, but it works.
                       Patches welcome. */
   char *ret;
   int rc;
 
-  if (rename(_PATH_MOUNTED, _PATH_MOUNTED "~") == -1)
+  if (asprintf(&mtab_path_new, "%s~", __mtab_path) < 0)
+  {
+    perror("asprintf");
+    return PMOUNT_NOTME;
+  }
+
+  if (rename(__mtab_path, mtab_path_new) == -1)
     if (errno != ENOENT)
     {
       perror("rename");
       return PMOUNT_NOTME;
     }
-  mtab_r = fopen(_PATH_MOUNTED "~", "r");
+  mtab_r = fopen(mtab_path_new, "r");
   if (mtab_r == NULL)
   {
     perror("fopen");
     return PMOUNT_NOTME;
   }
-  mtab_w = fopen(_PATH_MOUNTED, "w");
+  mtab_w = fopen(__mtab_path, "w");
   if (mtab_w == NULL)
   {
     perror("fopen");
@@ -120,11 +139,12 @@ __mtab_del(char *mntdir)
     perror("fclose");
     return PMOUNT_NOTME;
   }
-  if (unlink(_PATH_MOUNTED "~") != 0)
+  if (unlink(mtab_path_new) != 0)
   {
     perror("unlink");
     return PMOUNT_NOTME;
   }
+  free(mtab_path_new);
 
   return 0;
 }
@@ -139,7 +159,7 @@ __mtab_getline(char *mntdir)
                       Patches welcome. */
   char *ret;
 
-  mtab = fopen(_PATH_MOUNTED, "r");
+  mtab = fopen(__mtab_path, "r");
   if (mtab == NULL)
   {
     perror("fopen");
