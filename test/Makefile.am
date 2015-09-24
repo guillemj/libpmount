@@ -26,7 +26,8 @@ test_iso9660_SOURCES = test-loop.c
 test_iso9660_CPPFLAGS = $(AM_CPPFLAGS) -DFSNAME=\"iso9660\"
 
 test_mtab_SOURCES = test-mtab.c
-test_mtab_LDADD = $(top_builddir)/src/mtab.o
+test_mtab_CPPFLAGS = $(AM_CPPFLAGS) -DTEST_MTAB=\"$(srcdir)/mtab\"
+test_mtab_LDFLAGS = -static
 
 check_PROGRAMS = \
 	test-ext2fs \

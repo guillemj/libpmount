@@ -1,0 +1,4 @@
+proc /proc proc rw,nosuid,nodev,noexec 0 0
+sysfs /sys sysfs rw,nosuid,nodev,noexec 0 0
+testfs /test testfs rw,nosuid,nodev,noexec 0 0
+tmpfs /run tmpfs rw,nosuid,size=1024k,mode=755 0 0

@@ -10,12 +10,14 @@ main()
 {
   char *line, *word;
 
-  line = __mtab_getline("/proc");
+  __mtab_setpath(TEST_MTAB);
+
+  line = __mtab_getline("/test");
   if (line == NULL)
-    return 77;
+    return 1;
 
   word = __mtab_getword(line, 2);
-  if (strcmp(word, "proc") != 0)
+  if (strcmp(word, "testfs") != 0)
     return 1;
 
   return 0;
