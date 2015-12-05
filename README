@@ -11,7 +11,7 @@ kernel-related portability problems.
 Releases
 --------
 
-  <http://archive.hadrons.org/software/libpmount/>
+  <https://archive.hadrons.org/software/libpmount/>
 
 
 Contact
@@ -25,7 +25,7 @@ The mail address is:
 Source Repository
 -----------------
 
-  <http://git.hadrons.org/cgit/libpmount.git>
+  <https://git.hadrons.org/cgit/libpmount.git>
   <git://git.hadrons.org/git/libpmount.git>
 
 
