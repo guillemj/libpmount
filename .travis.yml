@@ -1,0 +1,23 @@
+language: c
+compiler:
+  - gcc
+sudo: false
+env:
+  global:
+  # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+  # via the "travis encrypt" command using the project repo's public key
+  - secure: "Q2MMyYAgYB6UOwxG+v2z1BA30wwSlxNz79iTmBsM3sbS75XWV9/Y+XHfFJX5gWzWMm2d7j6He/WImNUQ3kSjb/S8Zfddim7N0PxISSB2fEE1L6OrvpyTAYQ75dvjFhMYHbmC88XJbF5cLlbOfhDo4ji7WMMAx9Bqo0g+IJQkt8ybBBNz5fkumacpz9Am4fpwMXIO/HikYBV+aSh9833QE7rRxTV2Qdvf/Mu4aXtT1z041cxWyrVqGLmF8joqEW2MduEFzuz/+mHOQ/IQ3Qh9ep2IX33xN4xgg4R6CLBfckOT3zz9t1fpDdmEdYUJ/5sQYkOw+2lzkM1+aJ6w3MqOVZL+NCsBRfrLLVEHrjZ9gEaUmRzdFquzLF+3sQMlxYTO3mXoQ++b7rYfpRD4tWeEWZSOB/ciBeAfbweJBoT9R8T9xsi6OZtLGwThusXkgHPBvlo3HgIqefuZCdsQiiH9BaNTgcDSZDcN/XYUG/zk8HygoXwH+eS1Jl3zN5MAGMxIVvNERXQh8JX07LDVhK1EkOBf4AGbGweKQclDF3FXIMpaev915pQdOEJCFRCd+eBTdTi2tXGiio9PxBcxjkWTRhapQT4MbGYQ31cf40t8hvIHuFVyZ36KIXQdWjUOAIe1JSq+FiEUE8zDa4U6YEgnXBXBwpEqLPFiXQpTX5kbuxY="
+addons:
+  apt:
+    packages:
+    - libtool
+  coverity_scan:
+    project:
+      name: guillemj/libpmount
+      description: Portable Mount library
+    notification_email: guillem@hadrons.org
+    build_command_prepend: ./autogen && ./configure
+    build_command: make
+    branch_pattern: coverity_scan
+script:
+  - if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then ./autogen && ./configure && make check; fi
