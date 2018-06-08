@@ -66,7 +66,7 @@ __find_free_loop(void)
 static char *
 __findloop(char *file)
 {
-  char *loop;
+  char *loop = NULL;
   int fd = -1;
   int i, ret;
   struct loop_info64 loopinfo;
@@ -143,7 +143,9 @@ static char *
 __getloop(char *file, int mntflags)
 {
   char *device;
-  int fd_file, fd_device, fd_flags, ret;
+  int fd_file = -1;
+  int fd_device = -1;
+  int fd_flags, ret;
   struct loop_info64 loopinfo;
 
   device = __findloop(file);
@@ -161,14 +163,16 @@ __getloop(char *file, int mntflags)
   else
     fd_flags = O_RDWR;
   fd_file = open(file, fd_flags);
+  if (fd_file < 0)
+    goto cleanup_release;
   fd_device = open(device, fd_flags);
+  if (fd_device < 0)
+    goto cleanup_release;
   ret = ioctl(fd_device, LOOP_SET_FD, fd_file);
   close(fd_file);
+  fd_file = -1;
   if (ret == -1)
-  {
-    close(fd_device);
-    return NULL;
-  }
+    goto cleanup_release;
   verbose("%s: LOOP_SET_FD succeeded (%d).\n", __func__, ret);
 
   memset(&loopinfo, 0, sizeof(loopinfo));
@@ -179,16 +183,28 @@ __getloop(char *file, int mntflags)
   }
   else
   {
-    close(fd_device);
-    return NULL; /* Bail out. Filename is too long! */
+    goto cleanup_release; /* Bail out. Filename is too long! */
   }
   if (mntflags & PMOUNT_READONLY)
     loopinfo.lo_flags |= LO_FLAGS_READ_ONLY;
   ret = ioctl(fd_device, LOOP_SET_STATUS64, &loopinfo);
   close(fd_device);
+  fd_device = -1;
   if (ret == -1)
-    return NULL;
+    goto cleanup_release;
   verbose("%s: LOOP_SET_STATUS64 succeeded (%d).\n", __func__, ret);
+
+  goto cleanup_close;
+
+cleanup_release:
+  free(device);
+  device = NULL;
+
+cleanup_close:
+  if (fd_device >= 0)
+    close(fd_device);
+  if (fd_file >= 0)
+    close(fd_file);
 
   return device;
 }
@@ -206,6 +222,8 @@ __clrloop(char *file)
     return -1;
 
   fd = open(device, O_RDONLY);
+  if (fd < 0)
+    return -1;
   free(device);
   ret = ioctl(fd, LOOP_CLR_FD, 0);
   close(fd);
@@ -255,6 +273,12 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
   else
     return PMOUNT_UNKNOWNFS;
 
+  if (device == NULL)
+  {
+    errno = ENOENT;
+    return -1;
+  }
+
   verbose("%s: Mounting %s on %s.\n", __func__, device, mntdir);
 
   if (mount(device, mntdir, my_fstype, my_mntflags, my_data) == -1)
@@ -263,6 +287,12 @@ __pmount(char *fstype, char *mntdir, int mntflags, void *data)
     if (errno == ENOTBLK)
     {
       device = __getloop(device, mntflags);
+
+      if (device == NULL)
+      {
+        errno = ENOENT;
+        return -1;
+      }
 
       if (mount(device, mntdir, my_fstype, my_mntflags, my_data) == 0)
         return __PMOUNT_LOOPBACK;
