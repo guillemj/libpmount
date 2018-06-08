@@ -173,7 +173,10 @@ __getloop(char *file, int mntflags)
 
   memset(&loopinfo, 0, sizeof(loopinfo));
   if (strlen(file) <= LO_NAME_SIZE)
+  {
     strncpy((char *)loopinfo.lo_file_name, file, LO_NAME_SIZE);
+    loopinfo.lo_file_name[LO_NAME_SIZE - 1] = '\0';
+  }
   else
   {
     close(fd_device);
