@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <sys/sysmacros.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
