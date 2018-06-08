@@ -67,7 +67,8 @@ static char *
 __findloop(char *file)
 {
   char *loop;
-  int i, fd, ret;
+  int fd = -1;
+  int i, ret;
   struct loop_info64 loopinfo;
   struct stat st;
 
@@ -90,20 +91,21 @@ __findloop(char *file)
     if (rc < 0)
       break;
 
+    fd = open(loop, O_RDONLY);
+    if (fd < 0)
+      break;
+
     /* Make sure this is a loop device */
-    if (stat(loop, &st) != 0)
+    if (fstat(fd, &st) != 0)
       break;
     if (S_ISBLK(st.st_mode) == 0)
       break;
     if (major(st.st_rdev) != 7)
       break;
 
-    fd = open(loop, O_RDONLY);
-    if (fd < 0)
-      break;
-
     ret = ioctl(fd, LOOP_GET_STATUS64, &loopinfo);
     close(fd);
+    fd = -1;
 
     if (ret == 0)
     {
@@ -125,6 +127,9 @@ __findloop(char *file)
       return loop;
     }
   }
+
+  if (fd >= 0)
+    close(fd);
   free(loop);
 
   /* We failed. Let's return NULL. */
