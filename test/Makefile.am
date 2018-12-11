@@ -9,6 +9,10 @@ AM_CPPFLAGS = \
 
 LDADD = $(top_builddir)/src/libpmount.la
 
+EXTRA_DIST = \
+	mtab \
+	$(nil)
+
 ext2fs.img:
 	dd if=/dev/zero of=$@ bs=1024k count=1
 	mke2fs -F $@
