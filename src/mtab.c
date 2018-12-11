@@ -180,8 +180,8 @@ __mtab_getline(char *mntdir)
 {
   FILE *mtab = NULL;
   char *mntdir_str;
-  char *line;
-  size_t line_len;
+  char *line = NULL;
+  size_t line_len = 0;
   char *ret = NULL;
 
   mtab = fopen(__mtab_path, "r");
