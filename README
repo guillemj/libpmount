@@ -7,6 +7,11 @@ Its goal is to provide a consistent interface application programmers can
 rely on for mounting and umounting filesystems without having to address
 kernel-related portability problems.
 
+Website
+-------
+
+  <https://www.hadrons.org/software/libpmount/>
+
 
 Releases
 --------
@@ -25,8 +30,7 @@ The mail address is:
 Source Repository
 -----------------
 
-  <https://git.hadrons.org/cgit/libpmount.git>
-  <git://git.hadrons.org/git/libpmount.git>
+  <https://git.hadrons.org/git/libpmount.git>
 
 
 Supported filesystems
