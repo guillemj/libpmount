@@ -222,9 +222,9 @@ __clrloop(char *file)
     return -1;
 
   fd = open(device, O_RDONLY);
+  free(device);
   if (fd < 0)
     return -1;
-  free(device);
   ret = ioctl(fd, LOOP_CLR_FD, 0);
   close(fd);
 
