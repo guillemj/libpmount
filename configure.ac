@@ -6,7 +6,14 @@ AC_CONFIG_SRCDIR([src/pmount.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([1.11 -Wall foreign nostdinc subdir-objects no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE(
+  [1.11]
+  [-Wall]
+  [foreign]
+  [nostdinc]
+  [subdir-objects]
+  [no-dist-gzip dist-xz]
+)
 AM_SILENT_RULES([yes])
 
 SOVERSION_MAJOR=0
@@ -17,18 +24,20 @@ SOVERSION="$SOVERSION_MAJOR:$SOVERSION_MINOR:$SOVERSION_PATCH"
 AC_SUBST([SOVERSION])
 
 AC_ARG_ENABLE([loop],
-  AS_HELP_STRING([--disable-loop], [disable loopback device support]),
+  [AS_HELP_STRING([--disable-loop], [disable loopback device support])],
   [], [enable_loop=yes]
 )
-AS_IF([test "x$enable_loop" = "xyes"],
-  AC_DEFINE(USE_LOOP, [1], [Define to 1 to enable loopback device support.]))
+AS_IF([test "x$enable_loop" = "xyes"], [
+  AC_DEFINE(USE_LOOP, [1], [Define to 1 to enable loopback device support.])
+])
 
 AC_ARG_ENABLE([mtab],
-  AS_HELP_STRING([--enable-mtab], [enable mtab support]),
+  [AS_HELP_STRING([--enable-mtab], [enable mtab support])],
   [], [enable_mtab=no]
 )
-AS_IF([test "x$enable_mtab" = "xyes"],
-  AC_DEFINE(USE_MTAB, [1], [Define to 1 to enable mtab support.]))
+AS_IF([test "x$enable_mtab" = "xyes"], [
+  AC_DEFINE([USE_MTAB], [1], [Define to 1 to enable mtab support.])
+])
 
 # Check and store if we got user supplied variables
 user_CFLAGS=${CFLAGS-unset}
