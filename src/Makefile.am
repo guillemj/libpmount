@@ -20,7 +20,7 @@ libpmount_la_DEPENDENCIES = \
 libpmount_la_LDFLAGS = \
 	-Wl,-z,defs \
 	-Wl,--version-script=$(srcdir)/libpmount.map \
-	-version-number $(LIBPMOUNT_ABI)
+	-version-number $(SOVERSION)
 libpmount_la_SOURCES = \
 	kerndep.c \
 	mtab.c \
